@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14286e">
+<title>Calculateur BB3</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314286e'/%3E%3Ctext x='32' y='42' font-family='Arial' font-weight='700' font-size='26' fill='%23b9d400' text-anchor='middle'%3E20%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;
+--bg:light-dark(#f4f6fb,#0d1324);--card:light-dark(#fff,#151d33);--ink:light-dark(#121a33,#e8ecf7);--mute:light-dark(#5b6585,#9aa4c2);
+--line:light-dark(#dfe4f0,#26304d);--navy:#14286e;--lime:#b9d400;--red:light-dark(#c62f20,#ff6b5c);--amb:light-dark(#b06d00,#ffb547);--ok:light-dark(#2f7d10,#9fdc5c)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,sans-serif;overflow-x:clip}
+[hidden]{display:none!important}
+a{color:inherit}
+header{background:var(--navy);color:#fff;padding:18px max(5vw,16px) 0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.who{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:#c9d3f2}
+.who button{font:600 14px Figtree,sans-serif;background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:9px;padding:8px 12px;min-height:40px;cursor:pointer}
+#sync{font-size:13px;color:#c9d3f2;white-space:nowrap}
+h1{font-size:clamp(26px,4vw,38px);line-height:1.05;margin:0;font-weight:800;text-wrap:balance}
+header p{margin:6px 0 14px;color:#c9d3f2;max-width:68ch}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding-bottom:16px}
+.seg{display:inline-flex;background:rgba(255,255,255,.1);border-radius:12px;padding:4px;flex-wrap:wrap}
+.seg button{font:600 15px Figtree,sans-serif;border:0;background:none;color:#fff;padding:10px 14px;border-radius:9px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed=true]{background:var(--lime);color:#14286e}
+button:focus-visible,input:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;max-width:1240px;margin:0 auto;padding:24px max(4vw,16px) 48px;align-items:start}
+.bloc{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:18px;overflow:hidden}
+.bh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.bh h2{font-size:19px;margin:0}
+.bh span{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mod{display:grid;grid-template-columns:minmax(0,1fr) 92px 92px 64px;gap:10px;align-items:center;padding:10px 18px;border-bottom:1px solid var(--line)}
+.mod:last-child{border-bottom:0}
+.nm{font-weight:600;line-height:1.3}
+.nm small{display:block;font-weight:400;color:var(--mute);font-size:13px}
+.nm input{font:600 16px Figtree,sans-serif;width:100%;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:4px 6px}
+.f label{display:block;font-size:13px;color:var(--mute)}
+.f input{width:100%;font:16px Figtree,sans-serif;font-variant-numeric:tabular-nums;padding:9px 8px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);min-height:44px}
+.f input:disabled{opacity:.35}
+.nt{text-align:right;font-weight:800;font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.nt.r{color:var(--red)}.nt.a{color:var(--amb)}.nt.o{color:var(--ok)}
+.hint{font-size:12px;color:var(--mute);grid-column:1/-1;margin-top:-4px}
+aside{position:sticky;top:16px}
+.res{background:var(--navy);color:#fff;border-radius:18px;padding:22px}
+.res .lb{color:#c9d3f2;font-size:14px}
+.big{font-size:clamp(56px,9vw,84px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;margin:6px 0 4px}
+.big small{font-size:24px;color:#c9d3f2;font-weight:600}
+.st{display:inline-block;margin-top:8px;padding:6px 12px;border-radius:99px;font-weight:700;font-size:14px}
+.st.ok{background:var(--lime);color:#14286e}.st.ko{background:#ff6b5c;color:#2a0905}.st.na{background:rgba(255,255,255,.15)}
+.bars{margin-top:18px;display:grid;gap:10px}
+.bar .t{display:flex;justify-content:space-between;font-size:14px}
+.bar .tr{height:8px;background:rgba(255,255,255,.15);border-radius:9px;position:relative;margin-top:4px}
+.bar .tr i{position:absolute;inset:0 auto 0 0;border-radius:9px;background:var(--lime)}
+.bar .tr i.lo{background:#ff6b5c}
+.bar .tr b{position:absolute;left:50%;top:-3px;bottom:-3px;width:2px;background:#fff;opacity:.6}
+.side{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-top:16px;font-size:15px}
+.side h3{margin:0 0 8px;font-size:16px}
+.side ul{margin:0;padding-left:18px}
+.side li{margin:4px 0}
+.yr{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums;padding:3px 0}
+.btn{font:600 15px Figtree,sans-serif;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px 14px;min-height:44px;cursor:pointer;margin-top:12px}
+.btn.danger{color:var(--red)}
+.note{font-size:13px;color:var(--mute);margin-top:12px}
+/* écran de connexion */
+#auth{min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:var(--navy)}
+.box{background:var(--card);color:var(--ink);border-radius:20px;padding:28px;width:100%;max-width:420px}
+.box h1{color:var(--navy);font-size:30px}
+:root .box h1{color:light-dark(#14286e,#e8ecf7)}
+.box p{color:var(--mute);margin:8px 0 18px}
+.box label{display:block;font-size:14px;font-weight:600;margin:12px 0 4px}
+.box input{width:100%;font:16px Figtree,sans-serif;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);min-height:48px}
+.main-btn{width:100%;font:700 16px Figtree,sans-serif;background:var(--lime);color:#14286e;border:0;border-radius:12px;padding:14px;min-height:50px;margin-top:18px;cursor:pointer}
+.main-btn:disabled{opacity:.6;cursor:wait}
+.links{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:14px}
+.links button{background:none;border:0;color:light-dark(#14286e,#c9d3f2);font:600 14px Figtree,sans-serif;text-decoration:underline;cursor:pointer;padding:6px 0;min-height:36px}
+.msg{margin-top:14px;font-size:14px;padding:10px 12px;border-radius:10px}
+.msg.err{background:light-dark(#fde8e6,#3a1512);color:var(--red)}
+.msg.ok{background:light-dark(#eef7d6,#1f2b0e);color:var(--ok)}
+.foot{font-size:12px;color:var(--mute);margin-top:16px}
+/* boîte de dialogue */
+dialog{border:0;border-radius:18px;padding:24px;max-width:420px;width:calc(100% - 32px);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(10,15,35,.6)}
+dialog h2{margin:0 0 8px;font-size:22px}
+dialog .row{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+dialog input{width:100%;font:16px Figtree,sans-serif;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);min-height:48px;margin-top:8px}
+@media(max-width:900px){main{grid-template-columns:minmax(0,1fr)}aside{position:static;order:-1}}
+@media(max-width:600px){.mod{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 60px}.nm{grid-column:1/-1}.f.ex.none{display:none}.mod.cc .f{grid-column:span 2}}
+</style>
+</head>
+<body>
+
+<!-- ÉCRAN DE CONNEXION -->
+<section id="auth" hidden>
+  <form class="box" id="authForm" novalidate>
+    <h1>Calculateur BB3</h1>
+    <p id="authIntro">Connecte-toi pour retrouver tes notes sur tous tes appareils.</p>
+    <div id="fEmail"><label for="email">E-mail</label><input id="email" type="email" autocomplete="email" required></div>
+    <div id="fPass"><label for="pass">Mot de passe</label><input id="pass" type="password" autocomplete="current-password" minlength="6" required></div>
+    <button class="main-btn" id="authBtn" type="submit">Se connecter</button>
+    <div class="links">
+      <button type="button" id="toggleMode">Pas de compte ? Créer un compte</button>
+      <button type="button" id="forgot">Mot de passe oublié</button>
+    </div>
+    <div id="authMsg" class="msg" hidden></div>
+    <p class="foot">Outil étudiant non officiel. <a href="confidentialite.html">Confidentialité</a></p>
+  </form>
+</section>
+
+<!-- APPLICATION -->
+<div id="app" hidden>
+<header>
+  <div class="top">
+    <h1>Calculateur de moyenne BB3</h1>
+    <div class="who"><span id="userEmail"></span><span id="sync"></span><button id="menuBtn" type="button">Mon compte</button></div>
+  </div>
+  <p>Pondération ECTS, 40 % CC + 60 % examen ou 100 % CC, règles de validation de la maquette 2026-2027. Outil non officiel.</p>
+  <div class="ctl">
+    <div class="seg" id="spec" role="group" aria-label="Spécialisation">
+      <button data-v="mc">Mgmt Commercial / Marketing Digital</button>
+      <button data-v="ba">Banque Assurance</button>
+    </div>
+    <div class="seg" id="sem" role="group" aria-label="Semestre">
+      <button data-v="S5">Semestre 5</button>
+      <button data-v="S6">Semestre 6</button>
+    </div>
+  </div>
+</header>
+<main>
+  <section id="mods"></section>
+  <aside>
+    <div class="res">
+      <div class="lb" id="rlb">Moyenne du semestre</div>
+      <div class="big" id="avg">–<small> /20</small></div>
+      <div class="lb" id="ects"></div>
+      <span class="st na" id="stat">Entre une première note</span>
+      <div class="bars" id="bars"></div>
+    </div>
+    <div class="side" id="fails"></div>
+    <div class="side">
+      <h3>Sur l'année</h3>
+      <div id="year"></div>
+      <button class="btn" id="reset" type="button">Effacer les notes de ce semestre</button>
+      <p class="note">Plusieurs notes de CC ? Sépare-les par un espace ou « ; » (ex. 12 14,5 9). Les modules vides ne comptent pas encore. Compensation limitée à 2 modules par semestre (les 2 meilleurs). Répartition des blocs d'après les exemples de bulletins : à vérifier sur ton relevé officiel.</p>
+    </div>
+  </aside>
+</main>
+</div>
+
+<!-- MENU COMPTE -->
+<dialog id="menu">
+  <h2>Mon compte</h2>
+  <p id="menuEmail" style="color:var(--mute);margin:0"></p>
+  <div style="display:grid;gap:4px;margin-top:8px">
+    <button class="btn" id="logout" type="button">Se déconnecter</button>
+    <a class="btn" href="confidentialite.html" style="text-decoration:none;display:flex;align-items:center">Confidentialité</a>
+    <button class="btn danger" id="delAcc" type="button">Supprimer mon compte et mes notes</button>
+  </div>
+  <div class="row"><button class="btn" id="menuClose" type="button">Fermer</button></div>
+</dialog>
+
+<!-- CONFIRMATION SUPPRESSION -->
+<dialog id="delDlg">
+  <h2>Supprimer ton compte ?</h2>
+  <p style="margin:0">Ton compte et toutes tes notes seront effacés définitivement. Tape <b>SUPPRIMER</b> pour confirmer.</p>
+  <input id="delConfirm" autocomplete="off" aria-label="Confirmation">
+  <div class="row"><button class="btn" id="delCancel" type="button">Annuler</button><button class="btn danger" id="delGo" type="button" disabled>Supprimer</button></div>
+</dialog>
+
+<!-- NOUVEAU MOT DE PASSE (après lien de réinitialisation) -->
+<dialog id="pwDlg">
+  <h2>Nouveau mot de passe</h2>
+  <input id="newPw" type="password" autocomplete="new-password" minlength="6" placeholder="6 caractères minimum" aria-label="Nouveau mot de passe">
+  <p id="pwMsg" style="color:var(--red);font-size:14px;margin:8px 0 0"></p>
+  <div class="row"><button class="btn" id="pwGo" type="button">Enregistrer</button></div>
+</dialog>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+{
+/* ---------- Maquette BB3 ALT 2026-2027 ---------- */
+const G='Bloc Gestion',L='Bloc Langues',E='Bloc Expérientiel',C='Bloc Certification';
+// [id, nom, ECTS, examen?, bloc, nom éditable?]
+const M={
+ mc:{S5:[
+  ['rse',"Stratégie d'entreprise et RSE",5,1,G],
+  ['hack','Transformation digitale : Hackathon Web nocode',5,0,G],
+  ['sp1','Négociation et relation client',5,1,G],['sp2','Merchandising et techniques de vente',5,1,G],['sp3','Animation et gestion de conflits',3,1,G],['sp4','Business logistique',2,1,G],
+  ['secu','Management sécurité numérique : certification',2,0,G],
+  ['dv','Data visualisation et business reporting',2,0,G],
+  ['en5','English for General and Business Communication',1,0,L]],
+ S6:[
+  ['mkt','Outils de la stratégie marketing',5,1,G],['fin',"Finance d'entreprise",5,1,G],['rh','Management des ressources humaines',5,1,G],
+  ['bdd','Introduction aux bases de données',2,1,G],['proj','Introduction au management de projet',1,0,G],
+  ['te','Transition énergétique face aux enjeux climatiques',2,0,G],
+  ['en6','English for General and Business Communication',1,0,L],
+  ['task','Préparation Task (TEA + Certification)',1,0,C],
+  ['go','Grand oral',2,0,E],['dc','Dream Career',1,0,E],['mem','Mémoire professionnel : méthodologie de la recherche',5,0,E]]},
+ ba:{S5:[
+  ['rse',"Stratégie d'entreprise et RSE",5,1,G],
+  ['sp1','Cours spé 1',5,1,G,1],['sp2','Cours spé 2',5,1,G,1],['sp3','Cours spé 3',3,1,G,1],['sp4','Cours spé 4',2,1,G,1],
+  ['secu','Management sécurité numérique : certification',2,0,G],
+  ['dv','Data visualisation et business reporting',2,0,G],
+  ['hackb','RNCP : Transformation digitale des banques (Hackathon digital)',5,0,G],
+  ['fisc','RNCP : Fiscalité des particuliers',0,0,G],
+  ['en5','English for General and Business Communication',1,0,L]],
+ S6:[
+  ['mkt','Outils de la stratégie marketing',5,1,G],['fin',"Finance d'entreprise",5,1,G],['rh','Management des ressources humaines',5,1,G],
+  ['omni','RNCP : Banque et omnicanal, vente et négociation (= Intro bases de données)',2,1,G],
+  ['proj','Introduction au management de projet',1,0,G],['te','Transition énergétique face aux enjeux climatiques',2,0,G],
+  ['cred','RNCP : Crédits et mathématiques financières appliquées',0,0,G],['amf','RNCP : Certification AMF',0,0,G],
+  ['en6','English for General and Business Communication',1,0,L],
+  ['task','Préparation Task (TEA + Certification)',1,0,C],
+  ['go','Grand oral = Entretien commercial (RNCP)',2,0,E],['dc','Dream Career',1,0,E],['mem','Mémoire professionnel : méthodologie de la recherche',5,0,E]]}
+};
+const MAXC=2;
+const $=id=>document.getElementById(id);
+
+/* ---------- État + sauvegarde ---------- */
+const blank=()=>({spec:'mc',sem:'S5',n:{},names:{}});
+let S=blank(),user=null,saveTimer=null;
+const cacheKey=()=>'bb3-cache-'+(user?user.id:'anon');
+function setSync(t){$('sync').textContent=t}
+function save(){
+  try{localStorage.setItem(cacheKey(),JSON.stringify(S))}catch(e){}
+  setSync('Enregistrement…');
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(pushRemote,700);
+}
+async function pushRemote(){
+  if(!user)return;
+  const {error}=await sb.from('notes').upsert({user_id:user.id,data:S,updated_at:new Date().toISOString()});
+  setSync(error?'Hors ligne : enregistré sur cet appareil':'Enregistré ✓');
+}
+async function loadRemote(){
+  setSync('Chargement…');
+  let local=null;try{local=JSON.parse(localStorage.getItem(cacheKey()))}catch(e){}
+  const {data,error}=await sb.from('notes').select('data').eq('user_id',user.id).maybeSingle();
+  if(!error&&data&&data.data&&data.data.n)S=Object.assign(blank(),data.data);
+  else if(local&&local.n){S=Object.assign(blank(),local);if(!error)pushRemote()}
+  else S=blank();
+  setSync(error?'Hors ligne':'Synchronisé ✓');
+}
+
+/* ---------- Calcul ---------- */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=v=>v==null?'–':v.toFixed(2).replace('.',',');
+const parse=t=>{if(!t)return null;const a=String(t).split(/[\s;]+/).map(x=>parseFloat(x.replace(',','.'))).filter(x=>!isNaN(x)&&x>=0&&x<=20);return a.length?a.reduce((p,c)=>p+c,0)/a.length:null};
+const k=(sp,se,id,f)=>sp+'.'+se+'.'+id+'.'+f;
+const nm=(sp,m)=>m[5]&&S.names[sp+'.'+m[0]]?S.names[sp+'.'+m[0]]:m[1];
+function modNote(sp,se,m){
+  const cc=parse(S.n[k(sp,se,m[0],'cc')]),ex=m[3]?parse(S.n[k(sp,se,m[0],'ex')]):null;
+  if(m[3]){if(cc!=null&&ex!=null)return{v:.4*cc+.6*ex,cc,ex,full:1};if(cc!=null)return{v:cc,cc,ex,full:0};if(ex!=null)return{v:ex,cc,ex,full:0};return{v:null,cc,ex}}
+  return{v:cc,cc,full:1};
+}
+function calc(sp,se){
+  const mods=M[sp][se].map(m=>({m,...modNote(sp,se,m)}));
+  const blocs={};let sw=0,sv=0,partial=0;
+  for(const o of mods){
+    const b=blocs[o.m[4]]||(blocs[o.m[4]]={w:0,v:0,tot:0,mods:[]});
+    b.mods.push(o);b.tot+=o.m[2];
+    if(o.v!=null&&o.m[2]>0){b.w+=o.m[2];b.v+=o.v*o.m[2];sw+=o.m[2];sv+=o.v*o.m[2];if(!o.full)partial=1}
+  }
+  for(const n in blocs){const b=blocs[n];b.avg=b.w?b.v/b.w:null}
+  const avg=sw?sv/sw:null,fails=[],comp=[];
+  for(const n in blocs){const b=blocs[n];for(const o of b.mods){o.s=null;if(o.v==null||o.m[2]===0)continue;
+    if(o.v<8){o.s='r';fails.push([o,'note < 8/20'])}
+    else if(o.v<10){if(b.avg!=null&&b.avg<10){o.s='r';fails.push([o,'bloc < 10/20'])}else{o.s='a';comp.push(o)}}
+    else o.s='o'}}
+  comp.sort((x,y)=>y.v-x.v);
+  for(const o of comp.splice(MAXC)){o.s='r';fails.push([o,`plus de ${MAXC} compensations`])}
+  const blocKo=Object.entries(blocs).filter(([n,b])=>b.avg!=null&&b.avg<10).map(([n])=>n);
+  return{mods,blocs,avg,sw,partial,fails,comp,blocKo};
+}
+
+/* ---------- Affichage ---------- */
+function renderMods(){
+  const sp=S.spec,se=S.sem,r=calc(sp,se);
+  $('mods').innerHTML=Object.entries(r.blocs).map(([n,b])=>`
+  <div class="bloc"><div class="bh"><h2>${esc(n)} <small style="font-weight:400;color:var(--mute);font-size:14px">${b.tot} ECTS</small></h2><span data-b="${esc(n)}">${fmt(b.avg)}</span></div>
+  ${b.mods.map(o=>{const m=o.m,id=m[0];const cv=S.n[k(sp,se,id,'cc')]||'',ev=S.n[k(sp,se,id,'ex')]||'';
+   const mode=m[2]===0?'Hors moyenne (RNCP)':m[3]?`${m[2]} ECTS · 40 % CC + 60 % examen`:`${m[2]} ECTS · 100 % contrôle continu`;
+   return `<div class="mod ${m[3]?'':'cc'}">
+    <div class="nm">${m[5]?`<input aria-label="Nom du cours" data-name="${id}" value="${esc(nm(sp,m))}" placeholder="${esc(m[1])}">`:esc(m[1])}<small>${mode}</small></div>
+    <div class="f"><label for="cc-${id}">${m[3]?'CC':'Note'}</label><input id="cc-${id}" data-f="cc" data-id="${id}" inputmode="decimal" value="${esc(cv)}" placeholder="/20"></div>
+    <div class="f ex ${m[3]?'':'none'}"><label for="ex-${id}">Examen</label><input id="ex-${id}" data-f="ex" data-id="${id}" inputmode="decimal" value="${esc(ev)}" placeholder="/20" ${m[3]?'':'disabled'}></div>
+    <div class="nt" data-nt="${id}">–</div>
+    ${m[3]?`<div class="hint" data-h="${id}"></div>`:''}
+   </div>`}).join('')}</div>`).join('');
+  update();
+}
+function update(){
+  const sp=S.spec,se=S.sem,r=calc(sp,se);
+  for(const o of r.mods){const el=document.querySelector(`[data-nt="${o.m[0]}"]`);if(!el)continue;
+    el.textContent=fmt(o.v);el.className='nt '+(o.s||'');
+    const h=document.querySelector(`[data-h="${o.m[0]}"]`);
+    if(h){if(o.cc!=null&&o.ex==null){const n8=(8-.4*o.cc)/.6,n10=(10-.4*o.cc)/.6;
+      h.textContent=n10<=0?'Module déjà à 10 quel que soit l’examen.':n10>20?`Même 20 à l’examen ne suffit pas pour 10 ; il faut ${fmt(Math.max(0,n8))} pour 8.`:`À l’examen, il te faut ${fmt(Math.max(0,n10))} pour 10/20 au module (${fmt(Math.max(0,n8))} pour 8).`}
+      else h.textContent=''}}
+  for(const [n,b] of Object.entries(r.blocs)){const el=document.querySelector(`[data-b="${CSS.escape(n)}"]`);if(el)el.textContent=fmt(b.avg)}
+  $('rlb').textContent='Moyenne du '+(se==='S5'?'semestre 5':'semestre 6');
+  $('avg').innerHTML=(r.avg==null?'–':fmt(r.avg))+'<small> /20</small>';
+  $('ects').textContent=r.sw?`Calculée sur ${r.sw} ECTS sur 30${r.partial?' · certaines notes provisoires':''}`:'';
+  const st=$('stat');
+  if(r.avg==null){st.className='st na';st.textContent='Entre une première note'}
+  else if(r.avg>=10&&!r.blocKo.length&&!r.fails.length){st.className='st ok';st.textContent=r.sw<30?'En bonne voie pour valider':'Semestre validé'}
+  else{st.className='st ko';st.textContent=r.avg<10?'Moyenne générale sous 10':`${r.fails.length} module${r.fails.length>1?'s':''} en rattrapage`}
+  $('bars').innerHTML=Object.entries(r.blocs).map(([n,b])=>`<div class="bar"><div class="t"><span>${esc(n.replace('Bloc ',''))}</span><span>${fmt(b.avg)}</span></div><div class="tr"><i class="${b.avg!=null&&b.avg<10?'lo':''}" style="width:${b.avg==null?0:b.avg*5}%"></i><b></b></div></div>`).join('');
+  const f=$('fails');
+  if(!r.fails.length&&!r.comp.length)f.innerHTML='<h3>Rattrapages</h3><p style="margin:0;color:var(--mute)">Aucun module en rattrapage pour l’instant.</p>';
+  else f.innerHTML=(r.fails.length?`<h3 style="color:var(--red)">En rattrapage</h3><ul>${r.fails.map(([o,why])=>`<li>${esc(nm(sp,o.m))} — ${fmt(o.v)} <small style="color:var(--mute)">(${why})</small></li>`).join('')}</ul>`:'')
+   +(r.comp.length?`<h3 style="color:var(--amb);margin-top:${r.fails.length?12:0}px">Validés par compensation (${r.comp.length}/${MAXC})</h3><ul>${r.comp.map(o=>`<li>${esc(nm(sp,o.m))} — ${fmt(o.v)}</li>`).join('')}</ul>`:'');
+  const a=calc(sp,'S5'),b=calc(sp,'S6'),yw=a.sw+b.sw,yv=(a.avg||0)*a.sw+(b.avg||0)*b.sw;
+  $('year').innerHTML=`<div class="yr"><span>Semestre 5</span><b>${fmt(a.avg)}</b></div><div class="yr"><span>Semestre 6</span><b>${fmt(b.avg)}</b></div><div class="yr" style="border-top:1px solid var(--line);margin-top:4px;padding-top:6px"><span>Moyenne annuelle</span><b>${fmt(yw?yv/yw:null)}</b></div>`;
+}
+function setSeg(){for(const [id,v] of [['spec',S.spec],['sem',S.sem]])for(const b of document.querySelectorAll('#'+id+' button'))b.setAttribute('aria-pressed',b.dataset.v===v)}
+
+/* ---------- Événements calculateur ---------- */
+$('spec').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.spec=b.dataset.v;save();setSeg();renderMods()});
+$('sem').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.sem=b.dataset.v;save();setSeg();renderMods()});
+$('mods').addEventListener('input',e=>{const t=e.target;
+  if(t.dataset.name){S.names[S.spec+'.'+t.dataset.name]=t.value;save();update();return}
+  if(t.dataset.f){S.n[k(S.spec,S.sem,t.dataset.id,t.dataset.f)]=t.value;save();update()}});
+const rs=$('reset');let armed=0;
+rs.addEventListener('click',()=>{if(!armed){armed=1;rs.textContent='Confirmer l’effacement';setTimeout(()=>{armed=0;rs.textContent='Effacer les notes de ce semestre'},3000);return}
+  const p=S.spec+'.'+S.sem+'.';for(const key of Object.keys(S.n))if(key.startsWith(p))delete S.n[key];armed=0;rs.textContent='Effacer les notes de ce semestre';save();renderMods()});
+
+/* ---------- Supabase / comptes ---------- */
+const cfg=window.BB3_CONFIG||{};
+const configured=cfg.SUPABASE_URL&&!cfg.SUPABASE_URL.includes('TON-PROJET')&&cfg.SUPABASE_ANON_KEY&&!cfg.SUPABASE_ANON_KEY.includes('COLLE');
+let sb=null,shownId=null;
+function msg(t,kind){const m=$('authMsg');m.hidden=!t;m.textContent=t||'';m.className='msg '+(kind||'err')}
+const ERR={
+  'Invalid login credentials':'E-mail ou mot de passe incorrect.',
+  'Email not confirmed':'Confirme d’abord ton e-mail avec le lien reçu.',
+  'User already registered':'Un compte existe déjà avec cet e-mail : connecte-toi.'
+};
+const tr=e=>ERR[e.message]||(/at least 6/.test(e.message)?'Le mot de passe doit faire au moins 6 caractères.':/rate limit/i.test(e.message)?'Trop d’essais, réessaie dans quelques minutes.':e.message);
+
+let mode='login';
+function setMode(m){mode=m;
+  $('fPass').hidden=m==='forgot';
+  $('authBtn').textContent=m==='login'?'Se connecter':m==='signup'?'Créer mon compte':'Recevoir le lien';
+  $('toggleMode').textContent=m==='login'?'Pas de compte ? Créer un compte':'J’ai déjà un compte';
+  $('forgot').hidden=m!=='login';
+  $('pass').autocomplete=m==='signup'?'new-password':'current-password';
+  $('authIntro').textContent=m==='signup'?'Crée ton compte : tes notes seront enregistrées et synchronisées.':m==='forgot'?'Entre ton e-mail, tu recevras un lien pour choisir un nouveau mot de passe.':'Connecte-toi pour retrouver tes notes sur tous tes appareils.';
+  msg('');
+}
+$('toggleMode').onclick=()=>setMode(mode==='login'?'signup':'login');
+$('forgot').onclick=()=>setMode('forgot');
+$('authForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const email=$('email').value.trim(),pass=$('pass').value;
+  if(!/^\S+@\S+\.\S+$/.test(email))return msg('Entre une adresse e-mail valide.');
+  if(mode!=='forgot'&&pass.length<6)return msg('Le mot de passe doit faire au moins 6 caractères.');
+  const btn=$('authBtn');btn.disabled=true;msg('');
+  try{
+    const here=location.origin+location.pathname;
+    if(mode==='login'){const {error}=await sb.auth.signInWithPassword({email,password:pass});if(error)throw error}
+    else if(mode==='signup'){
+      const {data,error}=await sb.auth.signUp({email,password:pass,options:{emailRedirectTo:here}});if(error)throw error;
+      if(!data.session)msg('Compte créé ! Ouvre le lien reçu par e-mail pour l’activer, puis connecte-toi.','ok');
+    } else {
+      const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:here});if(error)throw error;
+      msg('Si un compte existe pour cet e-mail, un lien vient d’être envoyé.','ok');
+    }
+  }catch(err){msg(tr(err))}
+  btn.disabled=false;
+});
+
+async function showApp(u){
+  user=u;$('userEmail').textContent=u.email;$('menuEmail').textContent=u.email;
+  $('auth').hidden=true;$('app').hidden=false;
+  await loadRemote();setSeg();renderMods();
+}
+function showAuth(){
+  user=null;S=blank();$('app').hidden=true;$('auth').hidden=false;setMode('login');
+}
+
+$('menuBtn').onclick=()=>$('menu').showModal();
+$('menuClose').onclick=()=>$('menu').close();
+$('logout').onclick=async()=>{$('menu').close();clearTimeout(saveTimer);await pushRemote();await sb.auth.signOut()};
+$('delAcc').onclick=()=>{$('menu').close();$('delConfirm').value='';$('delGo').disabled=true;$('delDlg').showModal()};
+$('delCancel').onclick=()=>$('delDlg').close();
+$('delConfirm').oninput=e=>{$('delGo').disabled=e.target.value.trim().toUpperCase()!=='SUPPRIMER'};
+$('delGo').onclick=async()=>{
+  $('delGo').disabled=true;clearTimeout(saveTimer);
+  const {error}=await sb.rpc('supprimer_mon_compte');
+  if(error){$('delGo').disabled=false;return alertBox('La suppression a échoué : '+error.message)}
+  try{localStorage.removeItem(cacheKey())}catch(e){}
+  $('delDlg').close();await sb.auth.signOut();
+};
+function alertBox(t){$('delDlg').querySelector('p').textContent=t}
+
+$('pwGo').onclick=async()=>{
+  const p=$('newPw').value;if(p.length<6){$('pwMsg').textContent='6 caractères minimum.';return}
+  const {error}=await sb.auth.updateUser({password:p});
+  if(error){$('pwMsg').textContent=tr(error);return}
+  $('pwDlg').close();
+};
+
+if(!configured||!window.supabase){
+  $('auth').hidden=false;
+  $('authForm').querySelectorAll('input,button').forEach(x=>x.disabled=true);
+  msg(!configured?'Configuration manquante : renseigne SUPABASE_URL et SUPABASE_ANON_KEY dans config.js (voir GUIDE.md).':'Impossible de charger Supabase. Vérifie ta connexion internet.');
+} else {
+  sb=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
+  sb.auth.onAuthStateChange((event,session)=>{
+    if(event==='PASSWORD_RECOVERY'){$('newPw').value='';$('pwMsg').textContent='';setTimeout(()=>$('pwDlg').showModal(),0)}
+    const u=session&&session.user;
+    if(u&&shownId!==u.id){shownId=u.id;setTimeout(()=>showApp(u),0)}
+    else if(!u&&event==='SIGNED_OUT'){shownId=null;showAuth()}
+  });
+  sb.auth.getSession().then(({data})=>{if(!data.session)showAuth()});
+}
+}
+</script>
+</body>
+</html>
